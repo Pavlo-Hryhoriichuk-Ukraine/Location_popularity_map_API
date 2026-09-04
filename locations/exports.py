@@ -1,24 +1,23 @@
 from io import StringIO
 
 import pandas as pd
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework.request import Request
-from rest_framework.response import Response
 
 from locations.serializers import LocationSerializer
 from locations.views import LocationViewSet
 
 
-def export_locations_json(request: Request) -> Response:
+def export_locations_json(request: HttpRequest) -> JsonResponse:
     view = LocationViewSet()
-    view.request = request
+    view.request = Request(request)
     queryset = view.filter_queryset(view.get_queryset())
-    return Response(LocationSerializer(queryset, many=True).data)
+    return JsonResponse(LocationSerializer(queryset, many=True).data, safe=False)
 
 
-def export_locations_csv(request: Request) -> HttpResponse:
+def export_locations_csv(request: HttpRequest) -> HttpResponse:
     view = LocationViewSet()
-    view.request = request
+    view.request = Request(request)
     queryset = view.filter_queryset(view.get_queryset())
     rows = LocationSerializer(queryset, many=True).data
     frame = pd.DataFrame(rows)
