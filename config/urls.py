@@ -8,9 +8,10 @@ from config.auth_api import (
     PasswordResetRequestView,
     RegisterView,
 )
-from config.health import health_check
+from config.health import api_root, health_check
 
 urlpatterns = [ # type: ignore
+    path('', api_root, name='api-root'),
     path('health/', health_check, name='health-check'),
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/login/', LoginView.as_view(), name='auth-login'),
