@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from reviews.models import Review, ReviewVote
+from locations.cache import invalidate_location_list_cache
 from reviews.permissions import IsReviewAuthorOrAdmin
 from reviews.serializers import ReviewSerializer, ReviewVoteSerializer
 
@@ -17,6 +18,15 @@ class ReviewViewSet(ModelViewSet):
 
 	def perform_create(self, serializer) -> None:
 		serializer.save(author=self.request.user)
+		invalidate_location_list_cache()
+
+	def perform_update(self, serializer) -> None:
+		serializer.save()
+		invalidate_location_list_cache()
+
+	def perform_destroy(self, instance) -> None:
+		instance.delete()
+		invalidate_location_list_cache()
 
 	@action(
 		detail=True,

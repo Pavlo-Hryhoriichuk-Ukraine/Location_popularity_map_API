@@ -7,10 +7,12 @@ from django.db.models.functions import Coalesce, Least
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from locations.models import Category, Location, LocationViewEvent
+from locations.cache import LOCATION_LIST_TIMEOUT, get_location_list_cache_key, invalidate_location_list_cache
 from locations.filters import LocationFilter
 from locations.permissions import IsAuthorOrAdmin
 from locations.serializers import CategorySerializer, LocationSerializer
@@ -20,6 +22,18 @@ class CategoryViewSet(ModelViewSet):
 	queryset = Category.objects.all()
 	serializer_class = CategorySerializer
 	permission_classes = [IsAuthenticatedOrReadOnly]
+
+	def perform_create(self, serializer) -> None:
+		serializer.save()
+		invalidate_location_list_cache()
+
+	def perform_update(self, serializer) -> None:
+		serializer.save()
+		invalidate_location_list_cache()
+
+	def perform_destroy(self, instance) -> None:
+		instance.delete()
+		invalidate_location_list_cache()
 
 
 class LocationViewSet(ModelViewSet):
@@ -50,6 +64,16 @@ class LocationViewSet(ModelViewSet):
 			)
 		)
 
+	def list(self, request: Request, *args, **kwargs) -> Response:
+		cache_key = get_location_list_cache_key(request.query_params.urlencode())
+		cached_data = cache.get(cache_key)
+		if cached_data is not None:
+			return Response(cached_data)
+
+		response = super().list(request, *args, **kwargs)
+		cache.set(cache_key, response.data, timeout=LOCATION_LIST_TIMEOUT)
+		return response
+
 	def retrieve(self, request, *args, **kwargs) -> Response:
 		location = self.get_object()
 		if request.user.is_authenticated:
@@ -61,3 +85,12 @@ class LocationViewSet(ModelViewSet):
 
 	def perform_create(self, serializer) -> None:
 		serializer.save(author=self.request.user)
+		invalidate_location_list_cache()
+
+	def perform_update(self, serializer) -> None:
+		serializer.save()
+		invalidate_location_list_cache()
+
+	def perform_destroy(self, instance) -> None:
+		instance.delete()
+		invalidate_location_list_cache()
