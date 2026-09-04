@@ -1,9 +1,11 @@
 Django==5.2.6
 djangorestframework==3.16.1
- django-filter==25.1
- psycopg[binary]==3.2.10
- redis==6.4.0
- django-redis==5.4.0
- pandas==2.3.2
- pytest==8.4.1
- pytest-django==4.11.1
+django-filter==25.1
+psycopg[binary]==3.2.10
+redis==6.4.0
+django-redis==5.4.0
+pandas==2.3.2
+pytest==8.4.1
+pytest-django==4.11.1
+django-stubs==6.1.0
+python-dotenv==1.1.1
