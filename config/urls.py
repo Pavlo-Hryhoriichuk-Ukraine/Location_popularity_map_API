@@ -22,5 +22,6 @@ urlpatterns = [ # type: ignore
         name='password-reset-confirm',
     ),
     path('api/', include('locations.urls')),
+    path('api/', include('reviews.urls')),
     path('admin/', admin.site.urls),
 ]

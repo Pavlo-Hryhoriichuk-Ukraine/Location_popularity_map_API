@@ -11,6 +11,11 @@ class CategorySerializer(serializers.ModelSerializer[Category]):
 
 
 class LocationSerializer(serializers.ModelSerializer[Location]):
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
+    recent_view_count = serializers.IntegerField(read_only=True)
+    popularity_score = serializers.FloatField(read_only=True)
+
     class Meta:
         model = Location
         fields = [
@@ -24,5 +29,9 @@ class LocationSerializer(serializers.ModelSerializer[Location]):
             'author',
             'created_at',
             'updated_at',
+            'average_rating',
+            'review_count',
+            'recent_view_count',
+            'popularity_score',
         ]
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']

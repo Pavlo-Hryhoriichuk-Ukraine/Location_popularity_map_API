@@ -1,6 +1,7 @@
 Django==5.2.6
 djangorestframework==3.16.1
 django-filter==25.1
+types-django-filter==26.1.0.20260807
 psycopg[binary]==3.2.10
 redis==6.4.0
 django-redis==5.4.0

@@ -68,3 +68,15 @@ class Location(models.Model):
 
 	def __str__(self) -> str:
 		return self.name
+
+
+class LocationViewEvent(models.Model):
+	location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='view_events')
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='location_view_events')
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['location', 'created_at']),
+			models.Index(fields=['user', 'created_at']),
+		]
